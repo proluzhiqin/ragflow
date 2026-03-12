@@ -106,13 +106,14 @@ def chunk(filename, binary=None, from_page=0, to_page=100000, lang="Chinese", ca
             layout_recognizer=layout_recognizer,
             mineru_llm_name=parser_model_name,
             paddleocr_llm_name=parser_model_name,
+            textin_llm_name=parser_model_name,
             **kwargs,
         )
 
         if not sections and not tbls:
             return []
 
-        if name in ["tcadp", "docling", "mineru", "paddleocr"]:
+        if name in ["tcadp", "docling", "mineru", "paddleocr", "textin"]:
             parser_config["chunk_token_num"] = 0
 
         callback(0.8, "Finish parsing.")

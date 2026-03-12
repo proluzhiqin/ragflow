@@ -252,3 +252,10 @@ PADDLEOCR_DEFAULT_CONFIG = {
     "PADDLEOCR_ACCESS_TOKEN": None,
     "PADDLEOCR_ALGORITHM": "PaddleOCR-VL",
 }
+
+TEXTIN_ENV_KEYS = ["TEXTIN_APP_ID", "TEXTIN_SECRET_CODE", "TEXTIN_API_URL"]
+TEXTIN_DEFAULT_CONFIG = {
+    "TEXTIN_API_URL": "https://api.textin.com/ai/service/v1/pdf_to_markdown",
+    "TEXTIN_APP_ID": "",
+    "TEXTIN_SECRET_CODE": "",
+}

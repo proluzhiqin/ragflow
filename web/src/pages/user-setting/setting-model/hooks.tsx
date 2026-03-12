@@ -18,6 +18,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { ApiKeyPostBody } from '../interface';
 import { MinerUFormValues } from './modal/mineru-modal';
+import { TextInFormValues } from './modal/textin-modal';
 
 type SavingParamsState = Omit<IApiKeySavingParams, 'api_key'>;
 export type VerifyResult = {
@@ -786,6 +787,68 @@ export const useSubmitPaddleOCR = () => {
   };
 };
 
+export const useSubmitTextIn = () => {
+  const [saveLoading, setSaveLoading] = useState(false);
+  const { addLlm } = useAddLlm();
+  const {
+    visible: textinVisible,
+    hideModal: hideTextInModal,
+    showModal: showTextInModal,
+  } = useSetModalState();
+
+  const onTextInOk = useCallback(
+    async (payload: TextInFormValues, isVerify = false) => {
+      if (!isVerify) {
+        setSaveLoading(true);
+      }
+      const cfg: any = {
+        ...payload,
+      };
+      const req: IAddLlmRequestBody = {
+        llm_factory: LLMFactory.TextIn,
+        llm_name: payload.llm_name,
+        model_type: 'ocr',
+        api_key: cfg,
+        api_base: '',
+        max_tokens: 0,
+      };
+      const ret = await addLlm({ ...req, verify: isVerify });
+      if (!isVerify) {
+        setSaveLoading(false);
+        if (ret.code === 0) {
+          hideTextInModal();
+          return true;
+        }
+      }
+      if (isVerify) {
+        let res = {} as VerifyResult;
+        if (ret.data?.success) {
+          res = {
+            isValid: true,
+            logs: ret.data?.message,
+          };
+        } else {
+          res = {
+            isValid: false,
+            logs: ret.data?.message,
+          };
+        }
+        return res;
+      }
+      return false;
+    },
+    [addLlm, hideTextInModal, setSaveLoading],
+  );
+
+  return {
+    textinVisible,
+    hideTextInModal,
+    showTextInModal,
+    onTextInOk,
+    textinLoading: saveLoading,
+  };
+};
+
 export const useVerifySettings = ({
   onVerify,
 }: {
@@ -800,6 +863,10 @@ export const useVerifySettings = ({
       ) => Promise<VerifyResult | undefined>)
     | ((
         payload: MinerUFormValues,
+        isVerify?: boolean,
+      ) => Promise<VerifyResult | undefined>)
+    | ((
+        payload: TextInFormValues,
         isVerify?: boolean,
       ) => Promise<VerifyResult | undefined>)
     | ((payload: any, isVerify?: boolean) => Promise<boolean | VerifyResult>)

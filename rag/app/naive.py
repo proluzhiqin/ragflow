@@ -219,12 +219,83 @@ def by_plaintext(filename, binary=None, from_page=0, to_page=100000, callback=No
     return sections, tables, pdf_parser
 
 
+def by_textin(
+    filename,
+    binary=None,
+    from_page=0,
+    to_page=100000,
+    lang="Chinese",
+    callback=None,
+    pdf_cls=None,
+    textin_llm_name: str | None = None,
+    tenant_id: str | None = None,
+    **kwargs
+):
+    """
+    Parse document using TextIn API.
+
+    Args:
+        filename: Path to the file
+        binary: Binary content of the file
+        from_page: Starting page
+        to_page: Ending page
+        lang: Language for parsing
+        callback: Progress callback
+        pdf_cls: PDF parser class (not used)
+        textin_llm_name: TextIn LLM name (for LLMBundle)
+        tenant_id: Tenant ID for multi-tenant support
+        **kwargs: Additional parameters
+
+    Returns:
+        Tuple of (sections, tables, parser)
+    """
+    pdf_parser = None
+    if tenant_id:
+        if not textin_llm_name:
+            try:
+                from api.db.services.tenant_llm_service import TenantLLMService
+
+                env_name = TenantLLMService.ensure_textin_from_env(tenant_id)
+                candidates = TenantLLMService.query(tenant_id=tenant_id, llm_factory="TextIn", model_type=LLMType.OCR)
+                if candidates:
+                    textin_llm_name = candidates[0].llm_name
+                elif env_name:
+                    textin_llm_name = env_name
+            except Exception as e:  # best-effort fallback
+                logging.warning(f"fallback to env textin: {e}")
+
+        if textin_llm_name:
+            try:
+                ocr_model = LLMBundle(tenant_id=tenant_id, llm_type=LLMType.OCR, llm_name=textin_llm_name, lang=lang)
+                pdf_parser = ocr_model.mdl
+                sections, tables = pdf_parser.parse_pdf(
+                    filepath=filename,
+                    binary=binary,
+                    callback=callback,
+                    from_page=from_page,
+                    to_page=to_page,
+                    **kwargs
+                )
+                return sections, tables, pdf_parser
+            except Exception as e:
+                msg = f"[TextIn] {e}"
+                if callback:
+                    callback(-1, msg)
+
+        return None, None, None
+
+    if callback:
+        callback(-1, "TextIn not found.")
+    return None, None, None
+
+
 PARSERS = {
     "deepdoc": by_deepdoc,
     "mineru": by_mineru,
     "docling": by_docling,
     "tcadp": by_tcadp,
     "paddleocr": by_paddleocr,
+    "textin": by_textin,
     "plaintext": by_plaintext,  # default
 }
 
@@ -846,6 +917,7 @@ def chunk(filename, binary=None, from_page=0, to_page=100000, lang="Chinese", ca
             layout_recognizer=layout_recognizer,
             mineru_llm_name=parser_model_name,
             paddleocr_llm_name=parser_model_name,
+            textin_llm_name=parser_model_name,
             **kwargs,
         )
 

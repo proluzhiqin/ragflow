@@ -1,410 +1,503 @@
-<div align="center">
-<a href="https://demo.ragflow.io/">
-<img src="web/src/assets/logo-with-text.svg" width="520" alt="ragflow logo">
-</a>
-</div>
-
-<p align="center">
-  <a href="./README.md"><img alt="README in English" src="https://img.shields.io/badge/English-DBEDFA"></a>
-  <a href="./README_zh.md"><img alt="简体中文版自述文件" src="https://img.shields.io/badge/简体中文-DFE0E5"></a>
-  <a href="./README_tzh.md"><img alt="繁體版中文自述文件" src="https://img.shields.io/badge/繁體中文-DFE0E5"></a>
-  <a href="./README_ja.md"><img alt="日本語のREADME" src="https://img.shields.io/badge/日本語-DFE0E5"></a>
-  <a href="./README_ko.md"><img alt="한국어" src="https://img.shields.io/badge/한국어-DFE0E5"></a>
-  <a href="./README_id.md"><img alt="Bahasa Indonesia" src="https://img.shields.io/badge/Bahasa Indonesia-DFE0E5"></a>
-  <a href="./README_pt_br.md"><img alt="Português(Brasil)" src="https://img.shields.io/badge/Português(Brasil)-DFE0E5"></a>
-</p>
-
-<p align="center">
-    <a href="https://x.com/intent/follow?screen_name=infiniflowai" target="_blank">
-        <img src="https://img.shields.io/twitter/follow/infiniflow?logo=X&color=%20%23f5f5f5" alt="follow on X(Twitter)">
-    </a>
-    <a href="https://demo.ragflow.io" target="_blank">
-        <img alt="Static Badge" src="https://img.shields.io/badge/Online-Demo-4e6b99">
-    </a>
-    <a href="https://hub.docker.com/r/infiniflow/ragflow" target="_blank">
-        <img src="https://img.shields.io/docker/pulls/infiniflow/ragflow?label=Docker%20Pulls&color=0db7ed&logo=docker&logoColor=white&style=flat-square" alt="docker pull infiniflow/ragflow:v0.24.0">
-    </a>
-    <a href="https://github.com/infiniflow/ragflow/releases/latest">
-        <img src="https://img.shields.io/github/v/release/infiniflow/ragflow?color=blue&label=Latest%20Release" alt="Latest Release">
-    </a>
-    <a href="https://github.com/infiniflow/ragflow/blob/main/LICENSE">
-        <img height="21" src="https://img.shields.io/badge/License-Apache--2.0-ffffff?labelColor=d4eaf7&color=2e6cc4" alt="license">
-    </a>
-    <a href="https://deepwiki.com/infiniflow/ragflow">
-        <img alt="Ask DeepWiki" src="https://deepwiki.com/badge.svg">
-    </a>
-</p>
-
-<h4 align="center">
-  <a href="https://ragflow.io/docs/dev/">Document</a> |
-  <a href="https://github.com/infiniflow/ragflow/issues/12241">Roadmap</a> |
-  <a href="https://twitter.com/infiniflowai">Twitter</a> |
-  <a href="https://discord.gg/NjYzJD3GM3">Discord</a> |
-  <a href="https://demo.ragflow.io">Demo</a>
-</h4>
-
-<div align="center" style="margin-top:20px;margin-bottom:20px;">
-<img src="https://raw.githubusercontent.com/infiniflow/ragflow-docs/refs/heads/image/image/ragflow-octoverse.png" width="1200"/>
-</div>
+# TextIn 文档解析集成 for RAGFlow
 
 <div align="center">
-<a href="https://trendshift.io/repositories/9064" target="_blank"><img src="https://trendshift.io/api/badge/repositories/9064" alt="infiniflow%2Fragflow | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+
+**当前基于 [RAGFlow v0.24.0](https://github.com/infiniflow/ragflow/tree/v0.24.0) | 插件式集成 **
+
 </div>
 
-<details open>
-<summary><b>📕 Table of Contents</b></summary>
+---
 
-- 💡 [What is RAGFlow?](#-what-is-ragflow)
-- 🎮 [Demo](#-demo)
-- 📌 [Latest Updates](#-latest-updates)
-- 🌟 [Key Features](#-key-features)
-- 🔎 [System Architecture](#-system-architecture)
-- 🎬 [Get Started](#-get-started)
-- 🔧 [Configurations](#-configurations)
-- 🔧 [Build a Docker image](#-build-a-docker-image)
-- 🔨 [Launch service from source for development](#-launch-service-from-source-for-development)
-- 📚 [Documentation](#-documentation)
-- 📜 [Roadmap](#-roadmap)
-- 🏄 [Community](#-community)
-- 🙌 [Contributing](#-contributing)
+## 📑 目录
+
+- [项目简介](#-项目简介)
+- [核心特性](#-核心特性)
+- [快速开始](#-快速开始)
+  - [前置条件](#-前置条件)
+  - [国内镜像加速](#-国内镜像加速)
+  - [安装步骤](#-安装步骤)
+- [使用指南](#-使用指南)
+  - [配置 TextIn 解析引擎](#1-配置-textin-解析引擎)
+  - [在知识库中使用](#2-在知识库中使用)
+  - [解析 PDF 文档](#3-解析-pdf-文档)
+- [架构说明](#-架构说明)
+- [常见问题](#-常见问题)
+- [文档解析模型评测](#-文档解析模型评测)
+- [进阶内容](#-进阶内容)
+- [相关链接](#-相关链接)
+
+---
+
+## 📝 项目简介
+
+本项目是 RAGFlow 的**增强版本**，集成了 [TextIn](https://www.textin.com/) 文档智能解析能力，提供更高质量的 PDF 文档理解。
+
+**TextIn** 是合合信息旗下的文档智能处理云平台，通过 AI 能力实现文本、表格、图表和公式的精准提取。
+
+![TextIn 官网](docs/files/textin-web.png)
+
+### 设计理念
+
+✅ **插件式集成** — 新增功能独立存放，不破坏 RAGFlow 原有代码结构
+
+✅ **最小侵入** — 对原有文件的修改仅限于必要的路由接入
+
+✅ **易于维护** — 便于持续跟进 RAGFlow 上游版本更新
+
+✅ **灵活切换** — 可随时切换回官方版本或使用其他解析引擎
+
+---
+
+## ✨ 核心特性
+
+| 特性 | 说明 |
+|------|------|
+| 🎯 **高精度解析** | 基于 TextIn 云端 AI 能力，提升复杂文档的解析准确度 |
+| 📊 **智能表格识别** | 支持复杂表格结构、跨页表格的准确提取 |
+| 🖼️ **图表提取** | 自动识别并裁切文档中的图表、图像内容 |
+| 🔢 **公式支持** | 准确识别和提取数学公式 |
+| 🌐 **云端处理** | 无需本地 GPU，通过 API 调用实现高性能解析 |
+| 🔌 **知识库级配置** | 不同知识库可选择不同解析引擎，互不影响 |
+
+---
+
+## 🚀 快速开始
+
+### ✅ 前置条件
+
+在开始之前，请确保：
+
+1. ✅ 已注册 [TextIn](https://www.textin.com/) 账号并开通 API 权限
+2. ✅ 从 [TextIn 控制台](https://www.textin.com/console/dashboard/setting) 获取 **App ID** 和 **Secret Code**
+3. ✅ 本地已安装 RAGflow 对应官方版本
+
+> ⚠️ **版本提示**：请确保部署的服务镜像版本与本仓库当前 Tag 保持一致，避免版本不兼容问题。
+
+---
+
+### 🇨🇳 国内镜像加速
+
+国内用户可以使用以下阿里云镜像加速部署，提升拉取速度：
+
+| 服务 | 官方镜像 | 国内镜像 |
+|------|---------|---------|
+| **RAGFlow** | `infiniflow/ragflow:v0.24.0` | `crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/ragflow:v0.24.0` <br/>⚠️ **基于本仓库代码构建** |
+| **MySQL** | `mysql:8.0.39` | `crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/mysql:8.0.39` |
+| **Elasticsearch** | `elasticsearch:8.11.3` | `crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/elasticsearch:8.11.3` |
+| **MinIO** | `quay.io/minio/minio:RELEASE.2025-06-13T11-33-47Z` | `crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/minio:RELEASE.2025-06-13T11-33-47Z` |
+| **Valkey** | `valkey/valkey:8` | `crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/valkey:8` |
+
+#### ⚙️ 配置方法
+
+使用国内镜像需要修改以下文件：
+
+**📄 步骤 1：修改 `docker/.env` 文件**（RAGFlow 主服务镜像）
+
+```bash
+# 将第 157 行修改为：
+RAGFLOW_IMAGE=crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/ragflow:v0.24.0
+```
+
+**📄 步骤 2：修改 `docker/docker-compose-base.yml` 文件**（依赖服务镜像）
+
+```yaml
+# 第 5 行 - Elasticsearch
+image: crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/elasticsearch:8.11.3
+
+# 第 178 行 - MySQL
+image: crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/mysql:8.0.39
+
+# 第 205 行 - MinIO
+image: crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/minio:RELEASE.2025-06-13T11-33-47Z
+
+# 第 227 行 - Valkey
+image: crpi-2ix4w0sw61gwpv0x.cn-shanghai.personal.cr.aliyuncs.com/intsig_acg/valkey:8
+```
+
+---
+
+### 📦 安装步骤
+
+💡 根据实际需求选择以下两种部署方式之一：
+
+#### 🎯 方式一：使用国内镜像（推荐）
+
+✨ 适用于快速部署和生产环境。
+
+按照上述 [国内镜像加速](#-国内镜像加速) 章节修改 `docker/.env` 和 `docker/docker-compose-base.yml` 文件中的镜像地址。
+
+#### 🔧 方式二：从源码构建
+
+🛠️ 适用于需要修改代码或调试的场景。
+
+**📥 步骤 1：克隆仓库并构建镜像**
+
+```bash
+git clone <repository-url>
+cd ragflow
+docker build -t your-image-name:tag -f Dockerfile .
+```
+
+**⚙️ 步骤 2：配置镜像名称**
+
+修改 `docker/.env` 文件第 157 行：
+
+```bash
+RAGFLOW_IMAGE=your-image-name:tag
+```
+
+---
+
+#### 🚀 启动与访问
+
+✅ 完成上述配置后，执行以下命令启动服务：
+
+```bash
+cd docker
+DEVICE=gpu docker-compose up -d
+```
+
+🌐 **访问界面**
+
+服务启动完成后，在浏览器中访问以下地址：
+
+```
+http://localhost:{SVR_WEB_HTTP_PORT}
+```
+
+> 💡 默认端口为 80，可在 `docker/.env` 中通过 `SVR_WEB_HTTP_PORT` 配置。
+
+---
+
+## 📘 使用指南
+
+### 1. 配置 TextIn 解析引擎
+
+#### 步骤 1.1：进入模型提供商设置
+
+登录 RAGFlow 后，点击右上角头像，进入 **用户设置 → 模型提供商**。
+
+#### 步骤 1.2：添加 TextIn 模型
+
+找到 **TextIn** 卡片，点击 **添加模型**，填写以下配置信息：
+
+| 配置项 | 说明 | 示例 |
+|--------|------|------|
+| 模型名称 | 自定义名称，用于识别 | `xparser` 或 `textin-primary` |
+| TextIn API URL | API 端点地址（默认已填写） | `https://api.textin.com/...` |
+| App ID | 从 TextIn 控制台获取 | `your_app_id` |
+| Secret Code | 从 TextIn 控制台获取 | `your_secret_code` |
+
+![添加 TextIn 解析模型](docs/files/textin-add-model.png)
+
+#### 步骤 1.3：验证并保存
+
+点击 **验证** 按钮测试连接，验证通过后点击 **添加** 保存配置。
+
+---
+
+### 2. 在知识库中使用
+
+#### 步骤 2.1：创建或打开知识库
+
+在 RAGFlow 主界面创建新知识库，或打开已有知识库。
+
+#### 步骤 2.2：选择 TextIn 解析器
+
+进入知识库的 **设置** 页面，找到 **PDF 解析器** 选项。
+
+在下拉列表的 **TextIn** 分组中，选择刚才添加的模型（标注为 *Experimental*）。
+
+![在知识库中选择 TextIn 解析器](docs/files/textin-select-parser.png)
+
+点击 **保存** 应用配置。
+
+---
+
+### 3. 解析 PDF 文档
+
+#### 步骤 3.1：上传文档
+
+在知识库中点击 **上传文件**，选择需要解析的 PDF 文档。
+
+#### 步骤 3.2：开始解析
+
+上传完成后，RAGFlow 将自动使用 TextIn API 进行解析。
+
+#### 步骤 3.3：查看结果
+
+解析完成后，可在文档详情页查看提取的文本、表格和图像内容。
+
+
+---
+
+## 🏗️ 架构说明
+
+### 数据流程图
+
+```
+┌─────────────┐
+│  PDF 文件   │
+└──────┬──────┘
+       │
+       ▼
+┌─────────────────────────────┐
+│  naive.py: by_textin()      │  ← 文档处理入口
+└──────┬──────────────────────┘
+       │
+       ▼
+┌─────────────────────────────┐
+│  LLMBundle (OCR 类型)        │  ← 知识库配置的 TextIn 模型
+└──────┬──────────────────────┘
+       │
+       ▼
+┌─────────────────────────────┐
+│  TextInOcrModel             │  ← rag/llm/ocr_model.py
+└──────┬──────────────────────┘
+       │
+       ▼
+┌─────────────────────────────┐
+│  TextInParser               │  ← deepdoc/parser/textin_parser.py
+│  ├─ 调用 TextIn API          │
+│  └─ 使用 pdfplumber 渲染页面 │
+└──────┬──────────────────────┘
+       │
+       ▼
+┌─────────────────────────────┐
+│  (sections, tables, images) │  ← 与 RAGFlowPdfParser 兼容的输出
+└─────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────┐
+│  Chunking 流水线            │  ← 无需任何改动
+└─────────────────────────────┘
+```
+
+**关键设计**：`TextInParser` 继承自 `RAGFlowPdfParser`，输出格式完全兼容，下游的 Chunking、索引流程无需任何调整。
+
+---
+
+### 代码改动概览
+
+<details>
+<summary><b>后端改动文件</b>（点击展开）</summary>
+
+| 文件路径 | 变更类型 | 说明 |
+|---------|---------|------|
+| `deepdoc/parser/textin_parser.py` | **新增** | TextIn 核心解析器实现 |
+| `rag/llm/ocr_model.py` | 修改 | 新增 `TextInOcrModel` 类 |
+| `rag/app/naive.py` | 修改 | 新增 `by_textin()` 处理函数 |
+| `rag/app/{book,laws,manual,one,presentation}.py` | 修改 | 接入 TextIn 解析路由 |
+| `common/constants.py` | 修改 | 新增 TextIn 配置常量 |
+| `common/parser_config_utils.py` | 修改 | 新增 `@textin` 识别器路由 |
+| `conf/llm_factories.json` | 修改 | 注册 TextIn 模型提供商 |
+| `api/db/services/tenant_llm_service.py` | 修改 | 环境变量自动注入逻辑 |
+| `api/apps/llm_app.py` | 修改 | TextIn API 处理 |
 
 </details>
 
-## 💡 What is RAGFlow?
+<details>
+<summary><b>前端改动文件</b>（点击展开）</summary>
 
-[RAGFlow](https://ragflow.io/) is a leading open-source Retrieval-Augmented Generation ([RAG](https://ragflow.io/basics/what-is-rag)) engine that fuses cutting-edge RAG with Agent capabilities to create a superior context layer for LLMs. It offers a streamlined RAG workflow adaptable to enterprises of any scale. Powered by a converged [context engine](https://ragflow.io/basics/what-is-agent-context-engine) and pre-built agent templates, RAGFlow enables developers to transform complex data into high-fidelity, production-ready AI systems with exceptional efficiency and precision.
+| 文件路径 | 变更类型 | 说明 |
+|---------|---------|------|
+| `web/src/.../modal/textin-modal/` | **新增** | TextIn 配置弹窗组件 |
+| `web/src/.../setting-model/hooks.tsx` | 修改 | 新增 `useSubmitTextIn` Hook |
+| `web/src/.../setting-model/index.tsx` | 修改 | 集成 TextIn 弹窗 |
+| `web/src/constants/llm.ts` | 修改 | 新增 TextIn 工厂常量 |
+| `web/src/assets/svg/llm/textin.svg` | **新增** | TextIn Logo 图标 |
+| `web/src/locales/*.ts` | 修改 | 多语言文案支持 |
 
-## 🎮 Demo
+</details>
 
-Try our demo at [https://demo.ragflow.io](https://demo.ragflow.io).
 
-<div align="center" style="margin-top:20px;margin-bottom:20px;">
-<img src="https://raw.githubusercontent.com/infiniflow/ragflow-docs/refs/heads/image/image/chunking.gif" width="1200"/>
-<img src="https://raw.githubusercontent.com/infiniflow/ragflow-docs/refs/heads/image/image/agentic-dark.gif" width="1200"/>
-</div>
+---
 
-## 🔥 Latest Updates
+## ❓ 常见问题
 
-- 2025-12-26 Supports 'Memory' for AI agent.
-- 2025-11-19 Supports Gemini 3 Pro.
-- 2025-11-12 Supports data synchronization from Confluence, S3, Notion, Discord, Google Drive.
-- 2025-10-23 Supports MinerU & Docling as document parsing methods.
-- 2025-10-15 Supports orchestrable ingestion pipeline.
-- 2025-08-08 Supports OpenAI's latest GPT-5 series models.
-- 2025-08-01 Supports agentic workflow and MCP.
-- 2025-05-23 Adds a Python/JavaScript code executor component to Agent.
-- 2025-05-05 Supports cross-language query.
-- 2025-03-19 Supports using a multi-modal model to make sense of images within PDF or DOCX files.
+<details>
+<summary><b>Q：TextIn 会影响嵌入模型或检索流程吗？</b></summary>
 
-## 🎉 Stay Tuned
+不会。TextIn 仅负责 PDF 文档的解析阶段（OCR + 布局分析），后续的向量嵌入、文本分块（Chunking）、检索等流程完全不受影响。
 
-⭐️ Star our repository to stay up-to-date with exciting new features and improvements! Get instant notifications for new
-releases! 🌟
+</details>
 
-<div align="center" style="margin-top:20px;margin-bottom:20px;">
-<img src="https://github.com/user-attachments/assets/18c9707e-b8aa-4caf-a154-037089c105ba" width="1200"/>
-</div>
+<details>
+<summary><b>Q：需要本地 GPU 资源吗？</b></summary>
 
-## 🌟 Key Features
+不需要。TextIn 解析完全通过云端 API 调用实现，本地不会加载任何 OCR 或布局识别模型，对硬件无特殊要求。
 
-### 🍭 **"Quality in, quality out"**
+</details>
 
-- [Deep document understanding](./deepdoc/README.md)-based knowledge extraction from unstructured data with complicated
-  formats.
-- Finds "needle in a data haystack" of literally unlimited tokens.
+<details>
+<summary><b>Q：支持 Word、Excel 等其他文件格式吗？</b></summary>
 
-### 🍱 **Template-based chunking**
+目前仅支持 PDF 格式。本集成以插件方式接入，只在知识库配置 TextIn 引擎时对 PDF 生效，Word、Excel 等文件类型仍使用 RAGFlow 原有的解析器，行为不受影响。
 
-- Intelligent and explainable.
-- Plenty of template options to choose from.
+</details>
 
-### 🌱 **Grounded citations with reduced hallucinations**
+<details>
+<summary><b>Q：能同时使用 TextIn 和 DeepDOC 解析器吗？</b></summary>
 
-- Visualization of text chunking to allow human intervention.
-- Quick view of the key references and traceable citations to support grounded answers.
+可以。PDF 解析器在知识库级别独立配置，不同知识库可以选择不同的解析引擎（TextIn、DeepDOC 等），互不干扰。
 
-### 🍔 **Compatibility with heterogeneous data sources**
+</details>
 
-- Supports Word, slides, excel, txt, images, scanned copies, structured data, web pages, and more.
+<details>
+<summary><b>Q：TextIn API 调用失败会怎样？有降级机制吗？</b></summary>
 
-### 🛀 **Automated and effortless RAG workflow**
+目前没有自动降级机制。如果 TextIn API 调用失败，解析任务会报错终止。建议在使用前先通过模型验证功能测试 API 连接。
 
-- Streamlined RAG orchestration catered to both personal and large businesses.
-- Configurable LLMs as well as embedding models.
-- Multiple recall paired with fused re-ranking.
-- Intuitive APIs for seamless integration with business.
+</details>
 
-## 🔎 System Architecture
+<details>
+<summary><b>Q：如何查看 TextIn API 的调用费用？</b></summary>
 
-<div align="center" style="margin-top:20px;margin-bottom:20px;">
-<img src="https://github.com/user-attachments/assets/31b0dd6f-ca4f-445a-9457-70cb44a381b2" width="1000"/>
-</div>
+TextIn 是按调用次数或页数计费的服务，具体费用请登录 [TextIn 控制台](https://www.textin.com/console/dashboard) 查看账户余额和计费明细。
 
-## 🎬 Get Started
+</details>
 
-### 📝 Prerequisites
+<details>
+<summary><b>Q：解析速度如何？比本地 DeepDOC 快吗？</b></summary>
 
-- CPU >= 4 cores
-- RAM >= 16 GB
-- Disk >= 50 GB
-- Docker >= 24.0.0 & Docker Compose >= v2.26.1
-- [gVisor](https://gvisor.dev/docs/user_guide/install/): Required only if you intend to use the code executor (sandbox) feature of RAGFlow.
+解析速度取决于文档复杂度和网络状况。TextIn 通过云端 GPU 集群处理，对于复杂文档通常比本地单 GPU 更快，但需要考虑网络延迟和 API 队列时间。
 
-> [!TIP]
-> If you have not installed Docker on your local machine (Windows, Mac, or Linux), see [Install Docker Engine](https://docs.docker.com/engine/install/).
+</details>
 
-### 🚀 Start up the server
+---
 
-1. Ensure `vm.max_map_count` >= 262144:
+## 📊 文档解析模型评测
 
-   > To check the value of `vm.max_map_count`:
-   >
-   > ```bash
-   > $ sysctl vm.max_map_count
-   > ```
-   >
-   > Reset `vm.max_map_count` to a value at least 262144 if it is not.
-   >
-   > ```bash
-   > # In this case, we set it to 262144:
-   > $ sudo sysctl -w vm.max_map_count=262144
-   > ```
-   >
-   > This change will be reset after a system reboot. To ensure your change remains permanent, add or update the
-   > `vm.max_map_count` value in **/etc/sysctl.conf** accordingly:
-   >
-   > ```bash
-   > vm.max_map_count=262144
-   > ```
-   >
-2. Clone the repo:
+本项目提供了完整的评测工具，通过 RAGFlow 问答质量对比来评估不同文档解析器（TextIn、DeepDOC、PaddlePaddle 等）的实际效果。
 
-   ```bash
-   $ git clone https://github.com/infiniflow/ragflow.git
-   ```
-3. Start up the server using the pre-built Docker images:
+完整的工具使用指南、配置方法和示例，请查看：
 
-> [!CAUTION]
-> All Docker images are built for x86 platforms. We don't currently offer Docker images for ARM64.
-> If you are on an ARM64 platform, follow [this guide](https://ragflow.io/docs/dev/build_docker_image) to build a Docker image compatible with your system.
+**📘 [`test_qa/README.md`](test_qa/README.md)**
 
-> The command below downloads the `v0.24.0` edition of the RAGFlow Docker image. See the following table for descriptions of different RAGFlow editions. To download a RAGFlow edition different from `v0.24.0`, update the `RAGFLOW_IMAGE` variable accordingly in **docker/.env** before using `docker compose` to start the server.
+---
 
-```bash
-   $ cd ragflow/docker
+## 🔬 进阶内容
 
-   # git checkout v0.24.0
-   # Optional: use a stable tag (see releases: https://github.com/infiniflow/ragflow/releases)
-   # This step ensures the **entrypoint.sh** file in the code matches the Docker image version.
+### 解析行为说明
 
-   # Use CPU for DeepDoc tasks:
-   $ docker compose -f docker-compose.yml up -d
+<details>
+<summary><b>内容类型映射</b></summary>
 
-   # To use GPU to accelerate DeepDoc tasks:
-   # sed -i '1i DEVICE=gpu' .env
-   # docker compose -f docker-compose.yml up -d
+TextIn API 返回结构化的 `detail` 数组，解析器按以下规则处理不同类型的内容：
+
+| `type` | `sub_type` | RAGFlow 处理方式 |
+|--------|------------|-----------------|
+| `paragraph` | `text` / `text_title` / `header` / `footer` / `sidebar` / `image_title` / `catalog` | 作为文本块添加到 `self.boxes`，参与后续 Chunking |
+| `paragraph` | `table_title` | 与最近的表格关联，嵌入 HTML `<caption>` 标签 |
+| `table` | — | 转换为 HTML 表格，添加到 `tbls` 列表 |
+| `image` | `chart` / `figure` 等 | 从 PDF 页面裁切图像，添加到 `images` 列表 |
+
+</details>
+
+<details>
+<summary><b>跨页表格处理</b></summary>
+
+TextIn 通过 `split_section_page_ids` 和 `split_section_positions` 字段标记跨页拆分的表格。
+
+解析器会为每个分段生成独立的 position 记录，确保在 RAGFlow UI 中能够正确高亮显示表格的所有分段。
+
+</details>
+
+<details>
+<summary><b>坐标系统转换</b></summary>
+
+TextIn API 使用 144 DPI 坐标系统，而 RAGFlow 使用 72 DPI。解析器会自动进行坐标转换：
+
+```python
+ragflow_coord = textin_coord / 2.0
 ```
 
-> Note: Prior to `v0.22.0`, we provided both images with embedding models and slim images without embedding models. Details as follows:
+这确保了文档高亮位置的准确性。
 
-| RAGFlow image tag | Image size (GB) | Has embedding models? | Stable?        |
-|-------------------|-----------------|-----------------------|----------------|
-| v0.21.1           | &approx;9       | ✔️                    | Stable release |
-| v0.21.1-slim      | &approx;2       | ❌                     | Stable release |
+</details>
 
-> Starting with `v0.22.0`, we ship only the slim edition and no longer append the **-slim** suffix to the image tag.
+---
 
-4. Check the server status after having the server up and running:
+### 开发者指南
 
-   ```bash
-   $ docker logs -f docker-ragflow-cpu-1
-   ```
+#### 类继承关系
 
-   _The following output confirms a successful launch of the system:_
-
-   ```bash
-
-         ____   ___    ______ ______ __
-        / __ \ /   |  / ____// ____// /____  _      __
-       / /_/ // /| | / / __ / /_   / // __ \| | /| / /
-      / _, _// ___ |/ /_/ // __/  / // /_/ /| |/ |/ /
-     /_/ |_|/_/  |_|\____//_/    /_/ \____/ |__/|__/
-
-    * Running on all addresses (0.0.0.0)
-   ```
-
-   > If you skip this confirmation step and directly log in to RAGFlow, your browser may prompt a `network abnormal`
-   > error because, at that moment, your RAGFlow may not be fully initialized.
-   >
-5. In your web browser, enter the IP address of your server and log in to RAGFlow.
-
-   > With the default settings, you only need to enter `http://IP_OF_YOUR_MACHINE` (**sans** port number) as the default
-   > HTTP serving port `80` can be omitted when using the default configurations.
-   >
-6. In [service_conf.yaml.template](./docker/service_conf.yaml.template), select the desired LLM factory in `user_default_llm` and update
-   the `API_KEY` field with the corresponding API key.
-
-   > See [llm_api_key_setup](https://ragflow.io/docs/dev/llm_api_key_setup) for more information.
-   >
-
-   _The show is on!_
-
-## 🔧 Configurations
-
-When it comes to system configurations, you will need to manage the following files:
-
-- [.env](./docker/.env): Keeps the fundamental setups for the system, such as `SVR_HTTP_PORT`, `MYSQL_PASSWORD`, and
-  `MINIO_PASSWORD`.
-- [service_conf.yaml.template](./docker/service_conf.yaml.template): Configures the back-end services. The environment variables in this file will be automatically populated when the Docker container starts. Any environment variables set within the Docker container will be available for use, allowing you to customize service behavior based on the deployment environment.
-- [docker-compose.yml](./docker/docker-compose.yml): The system relies on [docker-compose.yml](./docker/docker-compose.yml) to start up.
-
-> The [./docker/README](./docker/README.md) file provides a detailed description of the environment settings and service
-> configurations which can be used as `${ENV_VARS}` in the [service_conf.yaml.template](./docker/service_conf.yaml.template) file.
-
-To update the default HTTP serving port (80), go to [docker-compose.yml](./docker/docker-compose.yml) and change `80:80`
-to `<YOUR_SERVING_PORT>:80`.
-
-Updates to the above configurations require a reboot of all containers to take effect:
-
-> ```bash
-> $ docker compose -f docker-compose.yml up -d
-> ```
-
-### Switch doc engine from Elasticsearch to Infinity
-
-RAGFlow uses Elasticsearch by default for storing full text and vectors. To switch to [Infinity](https://github.com/infiniflow/infinity/), follow these steps:
-
-1. Stop all running containers:
-
-   ```bash
-   $ docker compose -f docker/docker-compose.yml down -v
-   ```
-
-> [!WARNING]
-> `-v` will delete the docker container volumes, and the existing data will be cleared.
-
-2. Set `DOC_ENGINE` in **docker/.env** to `infinity`.
-3. Start the containers:
-
-   ```bash
-   $ docker compose -f docker-compose.yml up -d
-   ```
-
-> [!WARNING]
-> Switching to Infinity on a Linux/arm64 machine is not yet officially supported.
-
-## 🔧 Build a Docker image
-
-This image is approximately 2 GB in size and relies on external LLM and embedding services.
-
-```bash
-git clone https://github.com/infiniflow/ragflow.git
-cd ragflow/
-docker build --platform linux/amd64 -f Dockerfile -t infiniflow/ragflow:nightly .
+```
+RAGFlowPdfParser (基类)
+    │
+    └── TextInParser              ← deepdoc/parser/textin_parser.py
+            │
+            └── TextInOcrModel    ← rag/llm/ocr_model.py
 ```
 
-Or if you are behind a proxy, you can pass proxy arguments:
+#### 本地开发
+
+如需修改 TextIn 集成代码，建议按以下步骤进行本地开发：
 
 ```bash
-docker build --platform linux/amd64 \
-  --build-arg http_proxy=http://YOUR_PROXY:PORT \
-  --build-arg https_proxy=http://YOUR_PROXY:PORT \
-  -f Dockerfile -t infiniflow/ragflow:nightly .
+# 1. 克隆仓库
+git clone <repository-url>
+cd ragflow
+
+# 2. 安装依赖
+uv sync --python 3.12 --all-extras
+
+# 3. 启动基础服务
+docker compose -f docker/docker-compose-base.yml up -d
+
+# 4. 配置环境变量
+cp docker/.env.example docker/.env
+# 编辑 docker/.env，添加 TextIn 配置
+
+# 5. 启动后端服务
+source .venv/bin/activate
+export PYTHONPATH=$(pwd)
+bash docker/launch_backend_service.sh
+
+# 6. 修改代码并测试
+# 修改 deepdoc/parser/textin_parser.py 等文件
+# 重启服务验证效果
 ```
 
-## 🔨 Launch service from source for development
+---
 
-1. Install `uv` and `pre-commit`, or skip this step if they are already installed:
+## 🔗 相关链接
 
-   ```bash
-   pipx install uv pre-commit
-   ```
-2. Clone the source code and install Python dependencies:
+### 官方资源
 
-   ```bash
-   git clone https://github.com/infiniflow/ragflow.git
-   cd ragflow/
-   uv sync --python 3.12 # install RAGFlow dependent python modules
-   uv run download_deps.py
-   pre-commit install
-   ```
-3. Launch the dependent services (MinIO, Elasticsearch, Redis, and MySQL) using Docker Compose:
+- **RAGFlow 官方仓库**：[github.com/infiniflow/ragflow](https://github.com/infiniflow/ragflow)
+- **RAGFlow 文档**：[ragflow.io/docs](https://ragflow.io/docs)
+- **TextIn 官网**：[www.textin.com](https://www.textin.com/)
+- **TextIn API 文档**：[docs.textin.com/xparse/parse-quickstart](https://docs.textin.com/xparse/parse-quickstart)
 
-   ```bash
-   docker compose -f docker/docker-compose-base.yml up -d
-   ```
+### 社区与支持
 
-   Add the following line to `/etc/hosts` to resolve all hosts specified in **docker/.env** to `127.0.0.1`:
+- **问题反馈**：[提交 Issue](../../issues)
+- **功能建议**：[创建 Discussion](../../discussions)
 
-   ```
-   127.0.0.1       es01 infinity mysql minio redis sandbox-executor-manager
-   ```
-4. If you cannot access HuggingFace, set the `HF_ENDPOINT` environment variable to use a mirror site:
+---
 
-   ```bash
-   export HF_ENDPOINT=https://hf-mirror.com
-   ```
-5. If your operating system does not have jemalloc, please install it as follows:
+## 📄 许可证
 
-   ```bash
-   # Ubuntu
-   sudo apt-get install libjemalloc-dev
-   # CentOS
-   sudo yum install jemalloc
-   # OpenSUSE
-   sudo zypper install jemalloc
-   # macOS
-   sudo brew install jemalloc
-   ```
-6. Launch backend service:
+本项目遵循 **Apache 2.0 License**，与 RAGFlow 保持一致。详见 [LICENSE](LICENSE) 文件。
 
-   ```bash
-   source .venv/bin/activate
-   export PYTHONPATH=$(pwd)
-   bash docker/launch_backend_service.sh
-   ```
-7. Install frontend dependencies:
+---
 
-   ```bash
-   cd web
-   npm install
-   ```
-8. Launch frontend service:
+## 🙏 致谢
 
-   ```bash
-   npm run dev
-   ```
+衷心感谢以下团队与项目：
 
-   _The following output confirms a successful launch of the system:_
+- **[RAGFlow](https://github.com/infiniflow/ragflow)** 团队 — 构建了优秀的开源 RAG 引擎，提供了良好的架构设计与扩展性
+- **[TextIn](https://www.textin.com/)** (合合信息) — 提供了强大的文档智能解析能力
+- 所有为本项目提供反馈和贡献的开发者
 
-   ![](https://github.com/user-attachments/assets/0daf462c-a24d-4496-a66f-92533534e187)
-9. Stop RAGFlow front-end and back-end service after development is complete:
+---
 
-   ```bash
-   pkill -f "ragflow_server.py|task_executor.py"
-   ```
+<div align="center">
 
-## 📚 Documentation
+**⭐ 如果这个项目对你有帮助，欢迎 Star 支持！**
 
-- [Quickstart](https://ragflow.io/docs/dev/)
-- [Configuration](https://ragflow.io/docs/dev/configurations)
-- [Release notes](https://ragflow.io/docs/dev/release_notes)
-- [User guides](https://ragflow.io/docs/dev/category/guides)
-- [Developer guides](https://ragflow.io/docs/dev/category/developers)
-- [References](https://ragflow.io/docs/dev/category/references)
-- [FAQs](https://ragflow.io/docs/dev/faq)
+Made with ❤️ by RAGFlow & TextIn Community
 
-## 📜 Roadmap
+</div>
 
-See the [RAGFlow Roadmap 2026](https://github.com/infiniflow/ragflow/issues/12241)
-
-## 🏄 Community
-
-- [Discord](https://discord.gg/NjYzJD3GM3)
-- [Twitter](https://twitter.com/infiniflowai)
-- [GitHub Discussions](https://github.com/orgs/infiniflow/discussions)
-
-## 🙌 Contributing
-
-RAGFlow flourishes via open-source collaboration. In this spirit, we embrace diverse contributions from the community.
-If you would like to be a part, review our [Contribution Guidelines](https://ragflow.io/docs/dev/contributing) first.

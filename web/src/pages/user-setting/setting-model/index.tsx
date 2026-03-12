@@ -15,6 +15,7 @@ import {
   useSubmitMinerU,
   useSubmitOllama,
   useSubmitPaddleOCR,
+  useSubmitTextIn,
   useSubmitSpark,
   useSubmitSystemModelSetting,
   useSubmitTencentCloud,
@@ -31,6 +32,7 @@ import MinerUModal from './modal/mineru-modal';
 import TencentCloudModal from './modal/next-tencent-modal';
 import OllamaModal from './modal/ollama-modal';
 import PaddleOCRModal from './modal/paddleocr-modal';
+import TextInModal from './modal/textin-modal';
 import SparkModal from './modal/spark-modal';
 import VolcEngineModal from './modal/volcengine-modal';
 import YiyanModal from './modal/yiyan-modal';
@@ -139,6 +141,14 @@ const ModelProviders = () => {
     paddleocrLoading,
   } = useSubmitPaddleOCR();
 
+  const {
+    textinVisible,
+    hideTextInModal,
+    showTextInModal,
+    onTextInOk,
+    textinLoading,
+  } = useSubmitTextIn();
+
   const ModalMap = useMemo(
     () => ({
       [LLMFactory.Bedrock]: showBedrockAddingModal,
@@ -151,6 +161,7 @@ const ModelProviders = () => {
       [LLMFactory.AzureOpenAI]: showAzureAddingModal,
       [LLMFactory.MinerU]: showMineruModal,
       [LLMFactory.PaddleOCR]: showPaddleOCRModal,
+      [LLMFactory.TextIn]: showTextInModal,
     }),
     [
       showBedrockAddingModal,
@@ -163,6 +174,7 @@ const ModelProviders = () => {
       showAzureAddingModal,
       showMineruModal,
       showPaddleOCRModal,
+      showTextInModal,
     ],
   );
 
@@ -240,6 +252,9 @@ const ModelProviders = () => {
     if (paddleocrVisible) {
       return onPaddleOCROk;
     }
+    if (textinVisible) {
+      return onTextInOk;
+    }
     if (GoogleAddingVisible) {
       return onGoogleAddingOk;
     }
@@ -269,6 +284,8 @@ const ModelProviders = () => {
     onMineruOk,
     paddleocrVisible,
     onPaddleOCROk,
+    textinVisible,
+    onTextInOk,
   ]);
 
   const { onApiKeyVerifying } = useVerifySettings({
@@ -391,6 +408,13 @@ const ModelProviders = () => {
         loading={paddleocrLoading}
         onVerify={onApiKeyVerifying}
       ></PaddleOCRModal>
+      <TextInModal
+        visible={textinVisible}
+        hideModal={hideTextInModal}
+        onOk={onTextInOk}
+        loading={textinLoading}
+        onVerify={onApiKeyVerifying}
+      ></TextInModal>
     </div>
   );
 };

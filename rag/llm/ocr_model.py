@@ -20,6 +20,7 @@ from typing import Any, Optional
 
 from deepdoc.parser.mineru_parser import MinerUParser
 from deepdoc.parser.paddleocr_parser import PaddleOCRParser
+from deepdoc.parser.textin_parser import TextInParser
 
 
 class Base:
@@ -145,4 +146,63 @@ class PaddleOCROcrModel(Base, PaddleOCRParser):
             raise RuntimeError(f"PaddleOCR server not accessible: {reason}")
 
         sections, tables = PaddleOCRParser.parse_pdf(self, filepath=filepath, binary=binary, callback=callback, parse_method=parse_method, **kwargs)
+        return sections, tables
+
+
+class TextInOcrModel(Base, TextInParser):
+    _FACTORY_NAME = "TextIn"
+
+    def __init__(self, key: str | dict, model_name: str, **kwargs):
+        Base.__init__(self, key, model_name, **kwargs)
+        raw_config = {}
+        if key:
+            try:
+                raw_config = json.loads(key)
+            except Exception:
+                raw_config = {}
+
+        # nested {"api_key": {...}} from UI
+        # flat {"TEXTIN_*": "..."} payload auto-provisioned from env vars
+        config = raw_config.get("api_key", raw_config)
+        if not isinstance(config, dict):
+            config = {}
+
+        def _resolve_config(key: str, env_key: str, default=""):
+            # lower-case keys (UI), upper-case TEXTIN_* (env auto-provision), env vars
+            return config.get(key, config.get(env_key, os.environ.get(env_key, default)))
+
+        self.textin_api_url = _resolve_config("textin_api_url", "TEXTIN_API_URL", "https://api.textin.com/ai/service/v1/pdf_to_markdown")
+        self.textin_app_id = _resolve_config("textin_app_id", "TEXTIN_APP_ID", "")
+        self.textin_secret_code = _resolve_config("textin_secret_code", "TEXTIN_SECRET_CODE", "")
+
+        TextInParser.__init__(
+            self,
+            api_url=self.textin_api_url,
+            app_id=self.textin_app_id,
+            secret_code=self.textin_secret_code
+        )
+
+    def check_available(self) -> tuple[bool, str]:
+        """Check if TextIn is properly configured."""
+        if not self.textin_api_url:
+            return False, "[TextIn] API URL not configured"
+        return True, "TextIn ready"
+
+    def parse_pdf(self, filepath: str, binary=None, callback=None, from_page=0, to_page=100000, **kwargs):
+        """Parse PDF using TextIn API.
+
+        This method wraps the TextInParser.__call__ method to maintain consistency
+        with the LLMBundle interface while using RAGFlowPdfParser pattern.
+        """
+        ok, reason = self.check_available()
+        if not ok:
+            raise RuntimeError(f"TextIn not accessible: {reason}")
+
+        sections, tables = self.__call__(
+            fnm=filepath if binary is None else binary,
+            from_page=from_page,
+            to_page=to_page,
+            callback=callback,
+            **kwargs
+        )
         return sections, tables
